@@ -1,0 +1,120 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Mon Dec 14 14:45:54 2020
+
+@author: theodorecoupe
+"""
+import numpy as np
+import matplotlib.pyplot as plt
+'''
+y = np.cos(omega*t) + 3*np.cos(2*omega*t) - 4*np.cos(3*omega*t)
+np.sin(omega*t)
+np.sin(omega*t) + 3*np.sin(3*omega*t) + 5*np.sin(5*omega*t)
+
+'''
+#Definition of function to be Fourier/Simpson analysed
+omega = 1
+t = np.arange(0, 2*np.pi, 0.1)
+def f(t):
+    y = np.sin(omega*t) + 2*np.cos(3*omega*t) + 3*np.sin(5*omega*t)
+    return y
+
+plt.plot(t, f(t))
+
+T = 2*np.pi/omega
+a = 0
+b = T
+n = 8
+if n % 2 == 0:
+    print('N is even')
+
+#Simpson rule definition:
+def integrate(a,b,n,f):
+    h = (b-a)/n
+    xn = b
+    xo = a
+    sum1 = 0
+    sum2  = 0
+    for j in np.arange(1, (n/2)): #add 1 to range because np.arange starts and stops the number after and strats the number before
+        x1 = a + 2*j*h
+        sum1 += f(x1) 
+    for j in np.arange(1, (n/2)+1):
+        x2 = a + (2*j-1)*h
+        sum2 += f(x2)
+    integral = (h/3)*(f(xn) + 2*sum1 + 4*sum2 + f(xo))
+    
+    return integral
+
+integral_value = integrate(a,b,n,f)
+print('integral value=', integral_value)
+
+#Fourier series coefficients definition
+a0 = 1/T * integrate(a,b,n,f)
+print('a0=',a0)
+
+omega = 1
+T = 2*np.pi/omega
+a = 0
+b = T
+n = 70
+def coefficient_a(k):
+    def g(t):
+        return f(t)*np.cos(k*omega*t)
+    ak = 2/T * integrate(a,b,n,g)
+    return ak
+
+def coefficient_b(k):
+    def h(t):
+        return f(t)*np.sin(k*omega*t)
+    bk = 2/T * integrate(a,b,n,h)
+    return bk
+        
+print('ak=', coefficient_a(1))
+print('bk=', coefficient_b(1))
+
+ak_list = []
+bk_list = []
+summ_list= []
+#Defining the Fourier series
+def f_series(t):
+    for k in np.arange(1,20):
+        ak = coefficient_a(k)
+        bk = coefficient_b(k)
+        
+        ak_list.append(ak)
+        bk_list.append(bk)
+        
+        summ = ak*np.cos(k*omega*t) + bk*np.sin(k*omega*t)
+        summ_list.append(summ)
+        
+        
+    a0 = 1/T * integrate(a,b,n,f)
+    fs = a0 + sum(summ_list)
+    return fs
+
+print('Fourier series=', f_series(1))
+print('ak_list=', ak_list)
+print('bk_list=', bk_list)
+
+t_list = np.arange(0, 2*np.pi)
+fs_list = []
+dt = 0.1
+t = 0
+for t in t_list:
+    fs_list.append(f_series(t))
+
+plt.plot(ak_list, 'ro')
+plt.plot(bk_list, 'go')
+plt.xlim(0, 6)
+plt.title('f(t) - graph and fourier components')
+plt.show()
+
+plt.plot(t_list, fs_list)
+plt.title('Fourier series')
+plt.show()
+
+
+
+
+
