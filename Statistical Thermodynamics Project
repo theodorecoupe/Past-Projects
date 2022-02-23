@@ -12,15 +12,6 @@ import matplotlib.pyplot as plt
 
 print("Theo Coupe - 19302232")
 
-#exercise 2
-
-
-
-#exercise 3
-
-
-
-
 f = 10
 k = 1 #.38e-23
 M = 100 #*1.66e-27
