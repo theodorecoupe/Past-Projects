@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 27 19:39:38 2021
+
+@author: theodorecoupe
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+print("Theo Coupe - 19302232")
+
+#exercise 2
+
+
+
+#exercise 3
+
+
+
+
+f = 10
+k = 1 #.38e-23
+M = 100 #*1.66e-27
+m = 1 #*1.66e-27
+
+sig = np.sqrt(k/m) #k and m are both 1 atm
+mu = 0
+
+# position of piston
+x_pist = 200
+
+# position of particle
+x_part = np.random.uniform(low=0 , high = x_pist, size = 1000)
+
+# velocity of particle
+v_part = np.random.normal(mu, sig, 1000)
+
+#velocity of piston
+v_pist = np.random.normal(mu, sig, 1)
+
+
+def t(M, f, v_pist, v_part, x_pist, x_part):
+# for right moving particle    
+    if v_part > 0:
+        y =(M/f) * (v_pist - v_part + np.sqrt((v_pist-v_part)**2-2*(f/M)*(x_part-x_pist)))
+#for left moving pparticle    
+    else:
+        y = (M/f) * (v_pist + v_part + np.sqrt((v_pist+v_part)**2+2*(f/M)*(x_part+x_pist)))
+    return y
+
+#setup
+t = np.vectorize(t)
+times0 = []
+times1 = []
+pos_pist = []
+t_step = []
+v_pist_list = []
+new_velocities = []
+H_list = []
+
+
+for n in range(0, 20000):
+    t_step = t(M, f, v_pist, v_part, x_pist, x_part)
+    time_step = min(t_step)
+    t_step = t_step.tolist()
+    v_index = t_step.index(time_step)
+    x_part += v_part * time_step
+    x_pist = abs(x_part[v_index])
+    v_pist -= (f/M) * time_step
+    vs = v_part[v_index]
+# tracking v and x
+   
+    if vs > 0:  #rightward movement
+        v_pist_new = ((2*m*vs+(M-m)*v_pist)/(M+m))
+        v_part[v_index] = ((2*M*v_pist+(m-M)*vs)/(M+m))
+    
+    else:
+        v_pist_new = ((-2*m*vs+(M-m)*v_pist)/(M+m))
+        v_part[v_index] = ((-2*M*v_pist+(m-M)*vs)/(M+m))
+    
+    v_pist = v_pist_new
+    times0.append(time_step)
+    z = sum(times0)
+    pos_pist.append(x_pist)
+    times1.append(z)
+    v_pist_list.append(v_pist)
+    new_velocities.append(v_index)
+    h = .5 * sum(np.dot(m,v_part**2)) + .5 * M * (v_pist ** 2) + f*x_pist
+    H_list.append(h)
+    n += 1
+
+plt.hist(v_part[10], color = 'b')
+plt.hist(v_part[300],color = 'r')
+plt.hist(v_part[600],color = 'g')
+plt.hist(v_part[500], color = 'orange')
+plt.hist(v_part[900], color = 'purple')
+plt.xlabel("velocity")
+plt.ylabel("Particle existance")
+plt.title("Histogram showing velocities of of particles at random times")
+plt.show()
+    
+plt.plot(times1,pos_pist)
+plt.axhline(y = 170, color = 'r', linestyle = '-')
+plt.xlabel("time")
+plt.ylabel("Position of piston")
+plt.title("position of the piston over time")
+plt.show()
+plt.plot(times1, v_pist_list)
+plt.axhline(y = 0, color = 'r', linestyle = '-')
+plt.xlabel("time")
+plt.ylabel("velocity of pist")
+plt.title("velocity over time")
+plt.show()
+plt.plot(times1, H_list)
+plt.xlabel("time")
+plt.ylabel("Enthalpy")
+plt.title("Enthalpy over time")
+plt.show()
+
+
+for i in times1:
+    if 1 > 1e-22:
+        weighted_avg = np.average(pos_pist, weights=times1)
+print(weighted_avg)
+
+    
+
+  
+    
+    
+    
+
+
+
+
+
+
+
